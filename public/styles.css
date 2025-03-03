@@ -31,8 +31,8 @@ button {
 
 #game-board{
     background-image: url('images/background.png');
-    width: 40vw;
-    height: 40vw;
+    width: fit-content;
+    height: fit-content;
     display: grid;
 }
 
