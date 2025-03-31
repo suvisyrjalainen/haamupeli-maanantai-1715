@@ -56,12 +56,20 @@ function generateRandomBoard() {
 
     newBoard[pelaaja.y][pelaaja.x] = 'P'; //P is player
 
+    for(let i = 0; i < 5; i++){
+        const [x, y] = randomEmptyPosition(newBoard);
+        newBoard[y][x] = 'G'; //G is monster
+    }
+
     return newBoard;
     
 }  
 
 function drawBoard(board) {
     const gameBoard = document.getElementById('game-board');
+
+    // Tyhjennetään pelilauta
+    gameBoard.innerHTML = '';
 
     // Tämä luo CSS Grid -ruudukon, jossa on BOARD_SIZE saraketta. 
     // Jokainen sarake saa saman leveyden (1fr).
@@ -79,6 +87,9 @@ function drawBoard(board) {
             }
             else if (getCell(board, x, y) === 'P') {
                 cell.classList.add('player'); // 'P' on pelaaja
+            }
+            else if (getCell(board, x, y) === 'G') {
+                cell.classList.add('monster'); // 'G' on monster
             }
 
             gameBoard.appendChild(cell);
@@ -115,8 +126,8 @@ function generateObstacles(board){
         {startX: 8, startY: 2},
         {startX: 4, startY: 8},
         {startX: 10, startY: 10},
-        {startX: 6, startY: 12},
-        {startX: 12, startY: 5},
+        {startX: 6, startY: 11},
+        {startX: 11, startY: 5},
         {startX: 3, startY: 11},
         {startX: 5, startY: 4},
         {startX: 7, startY: 7}
@@ -143,7 +154,7 @@ function randomInt(min, max) {
 function randomEmptyPosition(board) {
     x = randomInt(1, BOARD_SIZE - 2);
     y = randomInt(1, BOARD_SIZE - 2);
-    if (getCell(board, x, y)  === ' ') {
+    if (getCell(board, x, y) === ' ') {
         return [x, y];
     } else {
         return randomEmptyPosition(board);
@@ -168,15 +179,19 @@ class Player {
 
 
 
-     // Päivitä pelaajan sijainti
-     this.x = newX;
-     this.y = newY;
+     
+     if (getCell(board, newX, newY) === ' ') {
+        // Päivitä pelaajan sijainti
+        this.x = newX;
+        this.y = newY;
 
-    // Päivitä pelikenttä
-    board[currentY][currentX] = ' '; // Tyhjennetään vanha paikka
-    board[newY][newX] = 'P'; // Asetetaan uusi paikka
+        // Päivitä pelikenttä
+        board[currentY][currentX] = ' '; // Tyhjennetään vanha paikka
+        board[newY][newX] = 'P'; // Asetetaan uusi paikka
+     }
 
-    drawBoard(board);
+     drawBoard(board);
+
     }
 }
     
