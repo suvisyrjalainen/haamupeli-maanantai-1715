@@ -6,6 +6,8 @@ let pelaaja;
 let playerX;
 let playerY;
 
+let ghosts = [];
+
 document.getElementById('start-button').addEventListener('click', startGame);
 
 document.addEventListener('keydown', (event) => {
@@ -72,6 +74,7 @@ function generateRandomBoard() {
     for(let i = 0; i < 5; i++){
         const [x, y] = randomEmptyPosition(newBoard);
         newBoard[y][x] = 'G'; //G is monster
+        ghosts.push(new Ghost(x,y));
     }
 
     return newBoard;
@@ -189,10 +192,20 @@ function shootAt(x,y){
     if (getCell(board, x, y) === 'W') {
         return;
     }
+
+    const ghostIndex = ghosts.findIndex(ghost => ghost.x === x && ghost.y === y);
+
+    if(ghostIndex !== -1){
+        ghosts.splice(ghostIndex,1);
+    }
+
     board[y][x] = 'B';
 
-
     drawBoard(board);
+
+    if(ghosts.length === 0){
+        alert('Kaikki kummitukset voitettu!');
+    }
 }
 
 class Player {
@@ -233,6 +246,13 @@ class Ghost {
     constructor(x, y){
         this.x = x;
         this.y = y;
+    }
+
+    moveGhostTowardsPlayer(player,board){
+        let dx = player.x - this.x;
+        let dy = player.y - this.y;
+        //tästä jatkuu 
+        console.log(dx , dy);
     }
 }
     
