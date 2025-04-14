@@ -60,4 +60,14 @@ button {
 .bullet{
     background-color: red;
     border-radius: 50%;
+    animation: fadeOut 0.5s ease-out;
+}
+
+@keyframes fadeOut {
+    0% {
+       opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
 }

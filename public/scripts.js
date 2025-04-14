@@ -18,12 +18,21 @@ document.addEventListener('keydown', (event) => {
       break;
       case 'ArrowLeft':
       pelaaja.move(-1, 0); // Liikuta vasemmalle
-     break;
+      break;
       case 'ArrowRight':
       pelaaja.move(1, 0); // Liikuta oikealle
       break;
       case 'w':
-        shootAt(pelaaja.x, pelaaja.y -1);
+        shootAt(pelaaja.x, pelaaja.y - 1);
+      break;
+      case 's':
+        shootAt(pelaaja.x, pelaaja.y + 1);
+      break;
+      case 'a':
+        shootAt(pelaaja.x - 1, pelaaja.y);
+      break;
+      case 'd':
+        shootAt(pelaaja.x + 1, pelaaja.y);
       break;
       
       }
@@ -96,6 +105,10 @@ function drawBoard(board) {
                 cell.classList.add('monster'); // 'G' on monster
             }else if(getCell(board,x,y) === 'B'){
                 cell.classList.add('bullet');
+                setTimeout(() => {
+                    setCell(board, x, y, ' ')
+                    drawBoard(board);
+                }, 500); // Ammus näkyy 500 ms
             }
 
             gameBoard.appendChild(cell);
@@ -107,6 +120,10 @@ function drawBoard(board) {
 
 function getCell(board, x, y) {
     return board[y][x];
+}
+
+function setCell(board, x, y, value) {
+    board[y][x] = value;
 }
 
 function calculateCellSize() {
@@ -168,7 +185,13 @@ function randomEmptyPosition(board) {
 }
 
 function shootAt(x,y){
+    // Tarkistetaan, että ammus ei mene seinään
+    if (getCell(board, x, y) === 'W') {
+        return;
+    }
     board[y][x] = 'B';
+
+
     drawBoard(board);
 }
 
@@ -203,6 +226,13 @@ class Player {
 
      drawBoard(board);
 
+    }
+}
+
+class Ghost {
+    constructor(x, y){
+        this.x = x;
+        this.y = y;
     }
 }
     
