@@ -8,6 +8,9 @@ let playerY;
 
 let ghosts = [];
 
+let ghostInterval; // Interval for moving ghosts
+let ghostSpeed = 1000; // Speed of ghost movement in milliseconds
+
 document.getElementById('start-button').addEventListener('click', startGame);
 
 document.addEventListener('keydown', (event) => {
@@ -46,6 +49,15 @@ function startGame() {
     document.getElementById('intro-screen').style.display = 'none';
     document.getElementById('game-screen').style.display = 'block';
     board = generateRandomBoard();
+
+
+    ghostInterval = setInterval(function() {
+        //ghosts[0].moveGhostTowardsPlayer(pelaaja, board);
+        moveGhosts();
+    }, ghostSpeed); // Move ghosts every second
+
+    
+
     console.log(board);
     drawBoard(board);
 }
@@ -204,7 +216,8 @@ function shootAt(x,y){
     drawBoard(board);
 
     if(ghosts.length === 0){
-        alert('Kaikki kummitukset voitettu!');
+        //alert('Kaikki kummitukset voitettu!');
+        startNextLevel();
     }
 }
 
@@ -248,11 +261,114 @@ class Ghost {
         this.y = y;
     }
 
-    moveGhostTowardsPlayer(player,board){
+    moveGhostTowardsPlayer(player,board, oldGhosts){
         let dx = player.x - this.x;
         let dy = player.y - this.y;
         //tästä jatkuu 
-        console.log(dx , dy);
+        //console.log(dx , dy);
+
+        let moves = [];
+
+        if (Math.abs(dx) > Math.abs(dy)) {
+            if (dx > 0) moves.push({ x: this.x + 1, y: this.y }); // Move right
+            else moves.push({ x: this.x - 1, y: this.y }); // Move left
+            if (dy > 0) moves.push({ x: this.x, y: this.y + 1 }); // Move down
+            else moves.push({ x: this.x, y: this.y - 1 }); // Move up
+        } else {
+            if (dy > 0) moves.push({ x: this.x, y: this.y + 1 }); // Move down
+            else moves.push({ x: this.x, y: this.y - 1 }); // Move up
+            if (dx > 0) moves.push({ x: this.x + 1, y: this.y }); // Move right
+            else moves.push({ x: this.x - 1, y: this.y }); //  Move left
+        }
+
+        //console.log(moves);
+
+        //console.log(moves[0].x, moves[0].y);
+
+        for (let move of moves) {
+            if (board[move.y][move.x] === ' ' || board[move.y][move.x] === 'P' &&
+              !oldGhosts.some(h => h.x === move.x && h.y === move.y)) // Tarkista, ettei haamu liiku toisen haamun päälle) 
+              { 
+                  return move;
+              }
+        }
+        // Jos kaikki pelaajaan päin suunnat ovat esteitä, pysy paikallaan
+        return { x: this.x, y: this.y };
     }
 }
+   
+
+function moveGhosts() {
+
+    // Säilytä haamujen vanhat paikat
+    const oldGhosts = ghosts.map(ghost => ({ x: ghost.x, y: ghost.y }));
     
+      ghosts.forEach(ghost => {
+        
+        const newPosition = ghost.moveGhostTowardsPlayer(pelaaja, board, oldGhosts);
+          
+          ghost.x = newPosition.x;
+          ghost.y = newPosition.y;
+        
+          //setCell(board, ghost.x, ghost.y, 'G');
+
+          // Check if ghost touches the player
+            if (ghost.x === pelaaja.x && ghost.y === pelaaja.y) {
+                endGame() // End the game
+            return;
+            }
+    
+        });
+
+        
+    
+        // Tyhjennä vanhat haamujen paikat laudalta
+        oldGhosts.forEach(ghost => {
+          board[ghost.y][ghost.x] = ' '; // Clear old ghost position
+        });
+
+        // Update the board with new ghost positions
+        ghosts.forEach(ghost => {
+            board[ghost.y][ghost.x] = 'G';
+        });
+    
+    
+        // Redraw the board to reflect ghost movement
+        drawBoard(board);
+    }
+
+    function endGame() {
+        alert('Game Over! The ghost caught you!');
+            // Show intro-view ja hide game-view
+        ghosts = []; // Tyhjennetään haamut
+        clearInterval(ghostInterval);
+        document.getElementById('intro-screen').style.display = 'block';
+        document.getElementById('game-screen').style.display = 'none';
+        
+        
+    }
+
+    function startNextLevel() {
+        alert('Level Up! Haamujen nopeus kasvaa.');
+    
+        ghosts = [];
+        // Generoi uusi pelikenttä
+        board = generateRandomBoard();
+        drawBoard(board);
+        console.log("New board generated for next level:", board);
+
+        ghostSpeed = ghostSpeed*0.9;
+        
+        // Pysäytä vanha intervalli ja käynnistä uusi nopeammin
+        clearInterval(ghostInterval);
+
+        ghostInterval = setInterval(moveGhosts, ghostSpeed); // Move ghosts every second
+        
+        /*
+        //Haamut alkavat liikkumaan sekunnin päästä startin painamisesta
+        setTimeout(() => {
+           //Laitetaan haamut liikkumaan 0.9 sekunnin välein
+           ghostInterval = setInterval(moveGhosts, ghostSpeed)
+        }, 3000);
+        */
+    }
